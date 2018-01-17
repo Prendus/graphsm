@@ -4,25 +4,38 @@ import {
 } from '../graphsm';
 
 GraphSMInit({
+    initialLocalState: {
+        components: {}
+    },
     localSchema: `
+        type State {
+            hello: Int!
+        }
+
         type Query {
-            hello: String!
+            componentState(componentId: String!): State!
         }
 
         type Mutation {
-            updateHello(hello: String!): String!
+            updateComponentState(componentId: String!, key: String!, value: Int!): Boolean!
         }
     `,
     localResolvers: {
-        hello: (variables, state) => {
-            return state.hello;
+        componentState: (variables, state) => {
+            return state.components[variables.componentId];
         },
-        updateHello: (variables, state) => {
+        updateComponentState: (variables, state) => {
             return {
-                value: variables.hello,
+                value: true,
                 state: {
                     ...state,
-                    hello: variables.hello
+                    components: {
+                        ...state.components,
+                        [variables.componentId]: {
+                            ...state.components[variables.componentId],
+                            [variables.key]: variables.value
+                        }
+                    }
                 }
             };
         }
@@ -32,13 +45,19 @@ GraphSMInit({
 (async () => {
     await execute(`
         mutation {
-            updateHello(hello: "My name is John")
+            one: updateComponentState(componentId: "component1", key: "hello", value: 10)
+            two: updateComponentState(componentId: "component1", key: "hello", value: 20)
         }
     `);
 
     const result = await execute(`
         query {
-            hello
+            one: componentState(componentId: "component1") {
+                hello
+            }
+            two: componentState(componentId: "component1") {
+                hello
+            }
         }
     `);
 
