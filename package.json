@@ -1,5 +1,17 @@
 {
     "name": "graphsm",
     "version": "0.0.1",
-    "description": "All-in-one state management solution using GraphQL"
+    "description": "All-in-one state management solution using GraphQL",
+    "scripts": {
+        "test": "xvfb-run -a electron --enable-logging node_modules/scram-engine/main.js --entry-file test/index.html --auto-run",
+        "test-auto": "electron --enable-logging node_modules/scram-engine/main.js --entry-file test/index.html --auto-run",
+        "test-window": "electron --enable-logging node_modules/scram-engine/main.js --entry-file test/index.html --window"
+    },
+    "devDependencies": {
+        "scram-engine": "^0.6.17"
+    },
+    "dependencies": {
+        "graphql": "file:graphql",
+        "redux": "^3.7.2"
+    }
 }
