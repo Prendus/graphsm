@@ -8,16 +8,32 @@ GraphSMInit({
         components: {}
     },
     localSchema: `
+        scalar Any
+
         type State {
+            components: [ComponentState!]!
+        }
+
+        interface ComponentState {
+            componentId: String!
+        }
+
+        type ComponentState1 implements ComponentState {
+            componentId: String!
             hello: Int!
         }
 
+        type ComponentState2 implements ComponentState {
+            componentId: String!
+            there: Int!
+        }
+
         type Query {
-            componentState(componentId: String!): State!
+            componentState(componentId: String!): ComponentState1!
         }
 
         type Mutation {
-            updateComponentState(componentId: String!, key: String!, value: Int!): Boolean!
+            updateComponentState(componentId: String!, key: String!, value: Any!): Boolean!
         }
     `,
     localResolvers: {
@@ -45,18 +61,16 @@ GraphSMInit({
 (async () => {
     await execute(`
         mutation {
-            one: updateComponentState(componentId: "component1", key: "hello", value: 10)
-            two: updateComponentState(componentId: "component1", key: "hello", value: 20)
+            updateComponentState(componentId: "component1", key: "hello", value: "Monkey")
         }
     `);
 
     const result = await execute(`
         query {
-            one: componentState(componentId: "component1") {
-                hello
-            }
-            two: componentState(componentId: "component1") {
-                hello
+            componentState(componentId: "component1") {
+                ... on ComponentState1 {
+                    hello
+                }
             }
         }
     `);
