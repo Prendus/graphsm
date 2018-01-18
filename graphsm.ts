@@ -33,6 +33,10 @@ export async function execute(queryString) {
     return await graphql(localSchema, queryString, localResolvers);
 }
 
+export function subscribe(callback) {
+    return store.subscribe(callback);
+}
+
 function prepareLocalResolvers(rawLocalResolvers) {
     return Object.entries(rawLocalResolvers).reduce((result, entry) => {
         const resolverName = entry[0];

@@ -1,7 +1,8 @@
 import {
     GraphSMInit,
     execute,
-    Any
+    Any,
+    subscribe
 } from '../graphsm';
 
 const reduxLogger = (store) => (next) => (action) => {
@@ -47,10 +48,24 @@ GraphSMInit({
             };
         }
     },
-    reduxMiddlewares: [reduxLogger]
+    reduxMiddlewares: []
 });
 
 (async () => {
+    subscribe(async () => {
+        const result = await execute(`
+            query {
+                one: componentState(componentId: "component1")
+                two: componentState(componentId: "component2")
+                three: componentState(componentId: "component3")
+                four: componentState(componentId: "component4")
+                five: componentState(componentId: "component5")
+            }
+        `);
+
+        console.log(result);
+    });
+
     await execute(`
         mutation {
             one: updateComponentState(componentId: "component1", key: "one", value: "Monkey")
@@ -60,16 +75,4 @@ GraphSMInit({
             five: updateComponentState(componentId: "component5", key: "five", value: "Monkey")
         }
     `);
-
-    const result = await execute(`
-        query {
-            one: componentState(componentId: "component1")
-            two: componentState(componentId: "component2")
-            three: componentState(componentId: "component3")
-            four: componentState(componentId: "component4")
-            five: componentState(componentId: "component5")
-        }
-    `);
-
-    console.log(result);
 })();
