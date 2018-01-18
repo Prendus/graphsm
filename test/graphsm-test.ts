@@ -1,6 +1,7 @@
 import {
     GraphSMInit,
-    execute
+    execute,
+    Any
 } from '../graphsm';
 
 GraphSMInit({
@@ -10,33 +11,16 @@ GraphSMInit({
     localSchema: `
         scalar Any
 
-        type State {
-            components: [ComponentState!]!
-        }
-
-        interface ComponentState {
-            componentId: String!
-        }
-
-        type ComponentState1 implements ComponentState {
-            componentId: String!
-            hello: Int!
-        }
-
-        type ComponentState2 implements ComponentState {
-            componentId: String!
-            there: Int!
-        }
-
         type Query {
-            componentState(componentId: String!): ComponentState1!
+            componentState(componentId: String!): Any
         }
 
         type Mutation {
-            updateComponentState(componentId: String!, key: String!, value: Any!): Boolean!
+            updateComponentState(componentId: String!, key: String!, value: Any): Boolean!
         }
     `,
     localResolvers: {
+        Any: Any, //TODO the reason I'm not shortening this with ES6 is most likely because of a bug in my SystemJS while emulating ES modules
         componentState: (variables, state) => {
             return state.components[variables.componentId];
         },
@@ -61,17 +45,21 @@ GraphSMInit({
 (async () => {
     await execute(`
         mutation {
-            updateComponentState(componentId: "component1", key: "hello", value: "Monkey")
+            one: updateComponentState(componentId: "component1", key: "one", value: "Monkey")
+            two: updateComponentState(componentId: "component2", key: "two", value: "Monkey")
+            three: updateComponentState(componentId: "component3", key: "three", value: "Monkey")
+            four: updateComponentState(componentId: "component4", key: "four", value: "Monkey")
+            five: updateComponentState(componentId: "component5", key: "five", value: "Monkey")
         }
     `);
 
     const result = await execute(`
         query {
-            componentState(componentId: "component1") {
-                ... on ComponentState1 {
-                    hello
-                }
-            }
+            one: componentState(componentId: "component1")
+            two: componentState(componentId: "component2")
+            three: componentState(componentId: "component3")
+            four: componentState(componentId: "component4")
+            five: componentState(componentId: "component5")
         }
     `);
 
