@@ -4,6 +4,13 @@ import {
     Any
 } from '../graphsm';
 
+const reduxLogger = (store) => (next) => (action) => {
+    console.log('dispatching', action);
+    const result = next(action);
+    console.log('state', store.getState());
+    return result;
+};
+
 GraphSMInit({
     initialLocalState: {
         components: {}
@@ -39,7 +46,8 @@ GraphSMInit({
                 }
             };
         }
-    }
+    },
+    reduxMiddlewares: [reduxLogger]
 });
 
 (async () => {

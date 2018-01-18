@@ -6,12 +6,14 @@ import {
 } from './graphql/module/index';
 
 import createStore from './redux/es/createStore';
+import applyMiddleware from './redux/es/applyMiddleware';
 
 let initialLocalState = {};
 let endpoint = null;
 let localSchema = null;
 let localResolvers = null;
 let store = null;
+let reduxMiddlewares = [];
 
 export const Any = new GraphQLScalarType({
     name: 'Any',
@@ -23,7 +25,8 @@ export function GraphSMInit(options) {
     endpoint = Object.keys(options).includes('endpoint') ? options.endpoint : endpoint;
     localSchema = Object.keys(options).includes('localSchema') ? buildSchema(options.localSchema) : buildSchema(localSchema); //TODO we might want to throw an error here to make it easy for the user
     localResolvers = Object.keys(options).includes('localResolvers') ? prepareLocalResolvers(options.localResolvers) : localResolvers;
-    store = prepareStore(initialLocalState);
+    reduxMiddlewares = Object.keys(options).includes('reduxMiddlewares') ? options.reduxMiddlewares : reduxMiddlewares;
+    store = prepareStore(initialLocalState, reduxMiddlewares);
 }
 
 export async function execute(queryString) {
@@ -54,7 +57,7 @@ function prepareLocalResolvers(rawLocalResolvers) {
     }, {});
 }
 
-function prepareStore(initialLocalState) {
+function prepareStore(initialLocalState, reduxMiddlewares) {
     return createStore((state = initialLocalState, action) => {
         switch (action.type) {
             case 'UPDATE_STATE': {
@@ -64,5 +67,5 @@ function prepareStore(initialLocalState) {
                 return state;
             }
         }
-    });
+    }, applyMiddleware(...reduxMiddlewares));
 }
