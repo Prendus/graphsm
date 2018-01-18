@@ -29,8 +29,8 @@ export function GraphSMInit(options) {
     store = prepareStore(initialLocalState, reduxMiddlewares);
 }
 
-export async function execute(queryString) {
-    return await graphql(localSchema, queryString, localResolvers);
+export async function execute(queryString, variables) {
+    return await graphql(localSchema, queryString, localResolvers, null, variables);
 }
 
 export function subscribe(callback) {
