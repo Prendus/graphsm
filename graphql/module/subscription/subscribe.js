@@ -7,7 +7,7 @@
  *
  */
 
-import { isAsyncIterable } from '../../node_modules/iterall/index';
+import { isAsyncIterable } from '../../node_lib/iterall/index';
 import { GraphQLError } from '../error/GraphQLError';
 import { locatedError } from '../error/locatedError';
 import { addPath, assertValidExecutionArguments, buildExecutionContext, buildResolveInfo, collectFields, execute, getFieldDef, getOperationRootType, resolveFieldValueOrError, responsePathAsArray } from '../execution/execute';

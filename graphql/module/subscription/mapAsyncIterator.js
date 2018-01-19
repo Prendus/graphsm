@@ -9,7 +9,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
  *
  */
 
-import { $$asyncIterator, getAsyncIterator } from '../../node_modules/iterall/index';
+import { $$asyncIterator, getAsyncIterator } from '../../node_lib/iterall/index';
 
 /**
  * Given an AsyncIterable and a callback function, return an AsyncIterator
