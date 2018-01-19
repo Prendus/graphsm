@@ -2,7 +2,8 @@ import {
     parse,
     graphql,
     buildSchema,
-    GraphQLScalarType
+    GraphQLScalarType,
+    GraphQLObjectType
 } from './graphql/module/index';
 
 import createStore from './redux/es/createStore';
@@ -27,6 +28,8 @@ export function GraphSMInit(options) {
     localResolvers = Object.keys(options).includes('localResolvers') ? prepareLocalResolvers(options.localResolvers) : localResolvers;
     reduxMiddlewares = Object.keys(options).includes('reduxMiddlewares') ? options.reduxMiddlewares : reduxMiddlewares;
     store = prepareStore(initialLocalState, reduxMiddlewares);
+
+    console.log(localSchema)
 }
 
 export async function execute(queryString, variables) {
@@ -35,6 +38,18 @@ export async function execute(queryString, variables) {
 
 export function subscribe(callback) {
     return store.subscribe(callback);
+}
+
+export function addIsTypeOf(abstractName, concreteName, isTypeOf) {
+    //TODO this is really bad to do, depending on a private API, but I don't see any official way of doing this dynamically
+    const concreteTypeObject = localSchema._implementations[abstractName].filter((concreteTypeObject) => {
+        return concreteTypeObject.name === concreteName;
+    })[0];
+    concreteTypeObject.isTypeOf = isTypeOf;
+}
+
+export function extendSchema(schemaExtension) {
+    localSchema = localSchema + schemaExtension;
 }
 
 function prepareLocalResolvers(rawLocalResolvers) {
