@@ -66,15 +66,12 @@ GraphSMInit({
         },
         updateComponentState: (variables, state) => {
             return {
-                value: true,
-                state: {
-                    ...state,
-                    components: {
-                        ...state.components,
-                        [variables.componentId]: {
-                            ...state.components[variables.componentId],
-                            [variables.key]: variables.value
-                        }
+                ...state,
+                components: {
+                    ...state.components,
+                    [variables.componentId]: {
+                        ...state.components[variables.componentId],
+                        [variables.key]: variables.value
                     }
                 }
             };

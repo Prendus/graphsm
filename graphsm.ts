@@ -9,7 +9,9 @@ import {
 import createStore from './redux/es/createStore';
 import applyMiddleware from './redux/es/applyMiddleware';
 
-let initialLocalState = {};
+let initialLocalState = {
+    GRAPH_SM_STATE: true
+};
 let endpoint = null;
 let localSchema = null;
 let localResolvers = null;
@@ -22,14 +24,15 @@ export const Any = new GraphQLScalarType({
 });
 
 export function GraphSMInit(options) {
-    initialLocalState = Object.keys(options).includes('initialLocalState') ? options.initialLocalState : initialLocalState;
+    initialLocalState = Object.keys(options).includes('initialLocalState') ? {
+        ...initialLocalState,
+        ...options.initialLocalState
+    } : initialLocalState;
     endpoint = Object.keys(options).includes('endpoint') ? options.endpoint : endpoint;
     localSchema = Object.keys(options).includes('localSchema') ? buildSchema(options.localSchema) : buildSchema(localSchema); //TODO we might want to throw an error here to make it easy for the user
     localResolvers = Object.keys(options).includes('localResolvers') ? prepareLocalResolvers(options.localResolvers) : localResolvers;
     reduxMiddlewares = Object.keys(options).includes('reduxMiddlewares') ? options.reduxMiddlewares : reduxMiddlewares;
     store = prepareStore(initialLocalState, reduxMiddlewares);
-
-    console.log(localSchema)
 }
 
 export async function execute(queryString, variables) {
@@ -61,13 +64,13 @@ function prepareLocalResolvers(rawLocalResolvers) {
             [resolverName]: (variables) => {
                 const resolverResult = resolverFunction(variables, store.getState());
 
-                if (Object.keys(resolverResult || {}).length === 2 && resolverResult.state) {
+                if (resolverResult && resolverResult.GRAPH_SM_STATE) {
                     store.dispatch({
                         type: 'UPDATE_STATE',
-                        state: resolverResult.state
+                        state: resolverResult
                     });
 
-                    return resolverResult.value;
+                    return true;
                 }
 
                 return resolverResult;
