@@ -73,7 +73,7 @@ function prepareLocalResolvers(rawLocalResolvers) {
                         state: resolverResult
                     });
 
-                    return true;
+                    return resolverResult;
                 }
 
                 return resolverResult;
