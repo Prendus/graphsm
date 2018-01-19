@@ -9,7 +9,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
  *
  */
 
-import { forEach, isCollection } from '../../../node_modules/iterall/index';
+import { forEach, isCollection } from '../../node_modules/iterall/index';
 import isInvalid from '../jsutils/isInvalid';
 import isNullish from '../jsutils/isNullish';
 import orList from '../jsutils/orList';

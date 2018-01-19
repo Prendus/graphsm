@@ -5,14 +5,10 @@
     "scripts": {
         "test": "xvfb-run -a electron --enable-logging node_modules/scram-engine/main.js --entry-file test/index.html --auto-run",
         "test-auto": "electron --enable-logging node_modules/scram-engine/main.js --entry-file test/index.html --auto-run",
-        "test-window": "electron --enable-logging node_modules/scram-engine/main.js --entry-file test/index.html --window",
-        "postinstall": "npm install"
+        "test-window": "electron --enable-logging node_modules/scram-engine/main.js --entry-file test/index.html --window"
     },
     "devDependencies": {
         "scram-engine": "^0.6.17"
     },
-    "dependencies": {
-        "graphql": "^0.12.3",
-        "redux": "^3.7.2"
-    }
+    "dependencies": {}
 }
