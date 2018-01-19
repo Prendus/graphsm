@@ -54,7 +54,7 @@ export function addIsTypeOf(abstractName, concreteName, isTypeOf) {
 }
 
 export function extendSchema(schemaExtension) {
-    localSchemaString = localSchema + schemaExtension;
+    localSchemaString = localSchemaString + schemaExtension;
     localSchema = buildSchema(localSchemaString);
 }
 
