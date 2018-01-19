@@ -45,7 +45,7 @@ export async function execute(queryString, pipelineFunctions) {
     for (let i=0; i < ast.definitions.length; i++) {
         const definition = ast.definitions[i];
         const name = definition.name.value;
-        const variables = pipelineFunctions[name](previousResult);
+        const variables = await pipelineFunctions[name](previousResult);
         previousResult = await graphql(localSchema, queryString, localResolvers, null, variables, name);
         result = {
             ...result,
