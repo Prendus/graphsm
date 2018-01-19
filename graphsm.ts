@@ -38,17 +38,10 @@ export function GraphSMInit(options) {
 }
 
 export async function execute(queryString, pipelineFunctions) {
-    const ast = parse(queryString);
-
-    console.log(queryString);
-    console.log(ast);
-
     //TODO redo all of this functionally
+    const ast = parse(queryString);
     let previousResult;
-    let result = {
-        data: undefined,
-        errors: undefined
-    };
+    let result = {};
     for (let i=0; i < ast.definitions.length; i++) {
         const definition = ast.definitions[i];
         const name = definition.name.value;
@@ -56,17 +49,21 @@ export async function execute(queryString, pipelineFunctions) {
         previousResult = await graphql(localSchema, queryString, localResolvers, null, variables, name);
         result = {
             ...result,
-            data: {
-                ...result.data,
-                ...previousResult.data
+            ...previousResult.data && {
+                data: {
+                    ...result.data,
+                    ...previousResult.data
+                }
             },
-            errors: {
-                ...result.errors,
-                ...previousResult.errors
+            ...previousResult.errors && {
+                errors: {
+                    ...result.errors,
+                    ...previousResult.errors
+                }
             }
         };
     }
-    console.log('result', result);
+    return result;
 }
 
 export function subscribe(callback) {
