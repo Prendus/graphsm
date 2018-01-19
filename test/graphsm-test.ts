@@ -26,9 +26,14 @@ GraphSMInit({
             componentId: String!
         }
 
+        type Question {
+            text: String!
+            code: String!
+        }
+
         type ComponentState1 implements ComponentState {
             componentId: String!
-            one: String!
+            question: Question!
         }
 
         type ComponentState2 implements ComponentState {
@@ -56,7 +61,7 @@ GraphSMInit({
         }
 
         type Mutation {
-            updateComponentState(componentId: String!, key: String!, value: Any): Boolean!
+            updateComponentState(componentId: String!, props: Any): Any
         }
     `,
     localResolvers: {
@@ -71,7 +76,7 @@ GraphSMInit({
                     ...state.components,
                     [variables.componentId]: {
                         ...state.components[variables.componentId],
-                        [variables.key]: variables.value
+                        ...variables.props
                     }
                 }
             };
@@ -82,7 +87,7 @@ GraphSMInit({
 
 (async () => {
     addIsTypeOf('ComponentState', 'ComponentState1', (value) => {
-        return value.one;
+        return value.question;
     });
 
     addIsTypeOf('ComponentState', 'ComponentState2', (value) => {
@@ -101,91 +106,159 @@ GraphSMInit({
         return value.five;
     });
 
-    subscribe(async () => {
-        const result = await execute(`
-            query(
-                $componentId1: String!
-                $componentId2: String!
-                $componentId3: String!
-                $componentId4: String!
-                $componentId5: String!
-            ) {
-                one: componentState(componentId: $componentId1) {
-                    ... on ComponentState1 {
-                        one
-                    }
-                }
-                two: componentState(componentId: $componentId2) {
-                    ... on ComponentState2 {
-                        two
-                    }
-                }
-                three: componentState(componentId: $componentId3) {
-                    ... on ComponentState3 {
-                        three
-                    }
-                }
-                four: componentState(componentId: $componentId4) {
-                    ... on ComponentState4 {
-                        four
-                    }
-                }
-                five: componentState(componentId: $componentId5) {
-                    ... on ComponentState5 {
-                        five
+    console.log('about to execute');
+
+    const result = await execute(`
+        mutation prepare(
+            $componentId: String!
+            $props: Any
+        ) {
+            updateComponentState(componentId: $componentId, props: $props)
+        }
+
+        query retrieve($componentId: String!) {
+            componentState(componentId: $componentId) {
+                ... on ComponentState1 {
+                    question {
+                        text
+                        code
                     }
                 }
             }
-        `, {
-            componentId1: "component1",
-            componentId2: "component2",
-            componentId3: "component3",
-            componentId4: "component4",
-            componentId5: "component5"
-        });
+        }
 
-        console.log(result);
-    });
-
-    await execute(`
-        mutation(
-            $componentId1: String!
-            $componentId2: String!
-            $componentId3: String!
-            $componentId4: String!
-            $componentId5: String!
-            $key1: String!
-            $key2: String!
-            $key3: String!
-            $key4: String!
-            $key5: String!
-            $value1: Any
-            $value2: Any
-            $value3: Any
-            $value4: Any
-            $value5: Any
+        mutation finish(
+            $componentId: String!
+            $props: Any
         ) {
-            one: updateComponentState(componentId: $componentId1, key: $key1, value: $value1)
-            two: updateComponentState(componentId: $componentId2, key: $key2, value: $value2)
-            three: updateComponentState(componentId: $componentId3, key: $key3, value: $value3)
-            four: updateComponentState(componentId: $componentId4, key: $key4, value: $value4)
-            five: updateComponentState(componentId: $componentId5, key: $key5, value: $value5)
+            updateComponentState(componentId: $componentId, props: $props)
         }
     `, {
-        componentId1: "component1",
-        componentId2: "component2",
-        componentId3: "component3",
-        componentId4: "component4",
-        componentId5: "component5",
-        key1: "one",
-        key2: "two",
-        key3: "three",
-        key4: "four",
-        key5: "five",
-        value1: "Monkey",
-        value2: "Chunkey",
-        value3: "Blunkey",
-        value4: "Flunkey",
-        value5: "Zunkey"
+        prepare: (previousResult) => {
+            console.log('prepare previousResult', previousResult);
+            return {
+                componentId: 'component1',
+                props: {
+                    loaded: false,
+                    question: {
+                        text: 'This is the text',
+                        code: 'This is the code'
+                    }
+                }
+            };
+        },
+        retrieve: (previousResult) => {
+            console.log('retrieve previousResult', previousResult);
+            return {
+                componentId: 'component1'
+            };
+        },
+        finish: (previousResult) => {
+            console.log('finish previousResult', previousResult);
+            const question = previousResult.data.componentState.question;
+            return {
+                componentId: 'component1',
+                props: {
+                    question,
+                    builtQuestion: {
+                        ...question,
+                        text: question.text + ' built',
+                        code: question.code + ' built'
+                    }
+                }
+            };
+        }
     });
+
+    console.log(result);
+
+    console.log('execution complete');
+
+    // subscribe(async () => {
+    //     const result = await execute(`
+    //         query(
+    //             $componentId1: String!
+    //             $componentId2: String!
+    //             $componentId3: String!
+    //             $componentId4: String!
+    //             $componentId5: String!
+    //         ) {
+    //             one: componentState(componentId: $componentId1) {
+    //                 ... on ComponentState1 {
+    //                     one
+    //                 }
+    //             }
+    //             two: componentState(componentId: $componentId2) {
+    //                 ... on ComponentState2 {
+    //                     two
+    //                 }
+    //             }
+    //             three: componentState(componentId: $componentId3) {
+    //                 ... on ComponentState3 {
+    //                     three
+    //                 }
+    //             }
+    //             four: componentState(componentId: $componentId4) {
+    //                 ... on ComponentState4 {
+    //                     four
+    //                 }
+    //             }
+    //             five: componentState(componentId: $componentId5) {
+    //                 ... on ComponentState5 {
+    //                     five
+    //                 }
+    //             }
+    //         }
+    //     `, {
+    //         componentId1: "component1",
+    //         componentId2: "component2",
+    //         componentId3: "component3",
+    //         componentId4: "component4",
+    //         componentId5: "component5"
+    //     });
+    //
+    //     console.log(result);
+    // });
+    //
+    // await execute(`
+    //     mutation(
+    //         $componentId1: String!
+    //         $componentId2: String!
+    //         $componentId3: String!
+    //         $componentId4: String!
+    //         $componentId5: String!
+    //         $key1: String!
+    //         $key2: String!
+    //         $key3: String!
+    //         $key4: String!
+    //         $key5: String!
+    //         $value1: Any
+    //         $value2: Any
+    //         $value3: Any
+    //         $value4: Any
+    //         $value5: Any
+    //     ) {
+    //         one: updateComponentState(componentId: $componentId1, key: $key1, value: $value1)
+    //         two: updateComponentState(componentId: $componentId2, key: $key2, value: $value2)
+    //         three: updateComponentState(componentId: $componentId3, key: $key3, value: $value3)
+    //         four: updateComponentState(componentId: $componentId4, key: $key4, value: $value4)
+    //         five: updateComponentState(componentId: $componentId5, key: $key5, value: $value5)
+    //     }
+    // `, {
+    //     componentId1: "component1",
+    //     componentId2: "component2",
+    //     componentId3: "component3",
+    //     componentId4: "component4",
+    //     componentId5: "component5",
+    //     key1: "one",
+    //     key2: "two",
+    //     key3: "three",
+    //     key4: "four",
+    //     key5: "five",
+    //     value1: "Monkey",
+    //     value2: "Chunkey",
+    //     value3: "Blunkey",
+    //     value4: "Flunkey",
+    //     value5: "Zunkey"
+    // });
 })();

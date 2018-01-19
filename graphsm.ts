@@ -37,8 +37,36 @@ export function GraphSMInit(options) {
     store = prepareStore(initialLocalState, reduxMiddlewares);
 }
 
-export async function execute(queryString, variables) {
-    return await graphql(localSchema, queryString, localResolvers, null, variables);
+export async function execute(queryString, pipelineFunctions) {
+    const ast = parse(queryString);
+
+    console.log(queryString);
+    console.log(ast);
+
+    //TODO redo all of this functionally
+    let previousResult;
+    let result = {
+        data: undefined,
+        errors: undefined
+    };
+    for (let i=0; i < ast.definitions.length; i++) {
+        const definition = ast.definitions[i];
+        const name = definition.name.value;
+        const variables = pipelineFunctions[name](previousResult);
+        previousResult = await graphql(localSchema, queryString, localResolvers, null, variables, name);
+        result = {
+            ...result,
+            data: {
+                ...result.data,
+                ...previousResult.data
+            },
+            errors: {
+                ...result.errors,
+                ...previousResult.errors
+            }
+        };
+    }
+    console.log('result', result);
 }
 
 export function subscribe(callback) {
