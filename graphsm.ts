@@ -14,6 +14,7 @@ let initialLocalState = {
 };
 let endpoint = null;
 let localSchema = null;
+let localSchemaString = null;
 let localResolvers = null;
 let store = null;
 let reduxMiddlewares = [];
@@ -29,7 +30,8 @@ export function GraphSMInit(options) {
         ...options.initialLocalState
     } : initialLocalState;
     endpoint = Object.keys(options).includes('endpoint') ? options.endpoint : endpoint;
-    localSchema = Object.keys(options).includes('localSchema') ? buildSchema(options.localSchema) : buildSchema(localSchema); //TODO we might want to throw an error here to make it easy for the user
+    localSchemaString = Object.keys(options).includes('localSchema') ? options.localSchema : localSchemaString; //TODO we might want to throw an error here to make it easy for the user
+    localSchema = buildSchema(localSchemaString);
     localResolvers = Object.keys(options).includes('localResolvers') ? prepareLocalResolvers(options.localResolvers) : localResolvers;
     reduxMiddlewares = Object.keys(options).includes('reduxMiddlewares') ? options.reduxMiddlewares : reduxMiddlewares;
     store = prepareStore(initialLocalState, reduxMiddlewares);
@@ -52,7 +54,8 @@ export function addIsTypeOf(abstractName, concreteName, isTypeOf) {
 }
 
 export function extendSchema(schemaExtension) {
-    localSchema = localSchema + schemaExtension;
+    localSchemaString = localSchema + schemaExtension;
+    localSchema = buildSchema(localSchemaString);
 }
 
 function prepareLocalResolvers(rawLocalResolvers) {
