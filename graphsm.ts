@@ -3,7 +3,8 @@ import {
     graphql,
     buildSchema,
     GraphQLScalarType,
-    GraphQLObjectType
+    GraphQLObjectType,
+    print
 } from './graphql/module/index';
 
 import createStore from './redux/es/createStore';
@@ -12,7 +13,7 @@ import applyMiddleware from './redux/es/applyMiddleware';
 let initialLocalState = {
     GRAPH_SM_STATE: true
 };
-let endpoint = null;
+let remoteEndpoint = null;
 let localSchema = null;
 let localSchemaString = null;
 let localResolvers = null;
@@ -29,7 +30,7 @@ export function GraphSMInit(options) {
         ...initialLocalState,
         ...options.initialLocalState
     } : initialLocalState;
-    endpoint = Object.keys(options).includes('endpoint') ? options.endpoint : endpoint;
+    remoteEndpoint = Object.keys(options).includes('remoteEndpoint') ? options.remoteEndpoint : remoteEndpoint;
     localSchemaString = Object.keys(options).includes('localSchema') ? options.localSchema : localSchemaString; //TODO we might want to throw an error here to make it easy for the user
     localSchema = buildSchema(localSchemaString);
     localResolvers = Object.keys(options).includes('localResolvers') ? prepareLocalResolvers(options.localResolvers) : localResolvers;
@@ -37,33 +38,61 @@ export function GraphSMInit(options) {
     store = prepareStore(initialLocalState, reduxMiddlewares);
 }
 
-export async function execute(queryString, pipelineFunctions) {
+export async function execute(queryString, pipelineFunctions, userToken) {
     //TODO redo all of this functionally
     const ast = parse(queryString);
-    let previousResult;
-    let result = {};
+
+    let previousResult = {};
     for (let i=0; i < ast.definitions.length; i++) {
         const definition = ast.definitions[i];
         const name = definition.name.value;
         const variables = await pipelineFunctions[name](previousResult);
-        previousResult = await graphql(localSchema, queryString, localResolvers, null, variables, name);
-        result = {
-            ...result,
-            ...previousResult.data && {
+        const partialAST = {
+            ...ast,
+            definitions: [definition]
+        };
+        const localAST = removeRemoteQueries(partialAST, localResolvers);
+        const remoteAST = removeLocalQueries(partialAST, localResolvers);
+
+        const localResult = localAST ? await graphql(localSchema, print(localAST), localResolvers, null, variables, name) : {};
+        const remoteResult = remoteAST ? await executeRemoteQuery(remoteEndpoint, print(remoteAST), variables, userToken) : {};
+
+        //TODO somehow combine the assignments below
+        previousResult = {
+            ...previousResult,
+            ...localResult.data && {
                 data: {
-                    ...result.data,
-                    ...previousResult.data
+                    ...previousResult.data,
+                    ...localResult.data
                 }
             },
-            ...previousResult.errors && {
+            ...localResult.errors && {
                 errors: {
-                    ...result.errors,
-                    ...previousResult.errors
+                    ...previousResult.errors,
+                    ...localResult.errors
+                }
+            }
+        };
+
+        //TODO somehow combine the assignments below
+        previousResult = {
+            ...previousResult,
+            ...remoteResult.data && {
+                data: {
+                    ...previousResult.data,
+                    ...remoteResult.data
+                }
+            },
+            ...remoteResult.errors && {
+                errors: {
+                    ...previousResult.errors,
+                    ...remoteResult.errors
                 }
             }
         };
     }
-    return result;
+
+    return previousResult;
 }
 
 export function subscribe(callback) {
@@ -118,4 +147,78 @@ function prepareStore(initialLocalState, reduxMiddlewares) {
             }
         }
     }, applyMiddleware(...reduxMiddlewares));
+}
+
+function removeRemoteQueries(ast, localResolvers) {
+    return removeRemoteOrLocalQueries(ast, localResolvers, (selection) => {
+        return localResolvers[selection.name.value];
+    });
+}
+
+function removeLocalQueries(ast, localResolvers) {
+    return removeRemoteOrLocalQueries(ast, localResolvers, (selection) => {
+        return !localResolvers[selection.name.value];
+    });
+}
+
+function removeRemoteOrLocalQueries(ast, localResolvers, filter) {
+    const newAST = removeUnusedVariableDefinitions({
+        ...ast,
+        definitions: ast.definitions.map((definition) => {
+            return {
+                ...definition,
+                selectionSet: {
+                    ...definition.selectionSet,
+                    selections: definition.selectionSet.selections.filter(filter)
+                }
+            };
+        })
+    });
+
+    if (newAST.definitions[0].selectionSet.selections.length === 0) {
+        return null;
+    }
+    else {
+        return newAST;
+    }
+}
+
+function removeUnusedVariableDefinitions(ast) {
+    return {
+        ...ast,
+        definitions: ast.definitions.map((definition) => {
+            const variableNamesInSelections = definition.selectionSet.selections.reduce((result, selection) => {
+                const variableNamesInSelection = selection.arguments.reduce((result, argument) => {
+                    return [...result, argument.name.value];
+                }, []);
+                return [...result, ...variableNamesInSelection];
+            }, []);
+            return {
+                ...definition,
+                variableDefinitions: definition.variableDefinitions.filter((variableDefinition) => {
+                    return variableNamesInSelections.includes(variableDefinition.variable.name.value);
+                })
+            };
+        })
+    };
+}
+
+async function executeRemoteQuery(endpoint, remoteQueryString, remoteVariables, userToken) {
+    const response = await window.fetch(endpoint, {
+        method: 'post',
+        headers: {
+            'content-type': 'application/json',
+            ...userToken && {
+                'Authorization': `Bearer ${userToken}`
+            } //TODO As far as I understand the syntax above will be standard and this TypeScript error might go away with the following: https://github.com/Microsoft/TypeScript/issues/10727
+        },
+        body: JSON.stringify({
+            query: remoteQueryString,
+            variables: remoteVariables
+        })
+    });
+
+    const responseJSON = await response.json();
+
+    return responseJSON;
 }

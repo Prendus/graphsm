@@ -15,6 +15,8 @@ const reduxLogger = (store) => (next) => (action) => {
     return result;
 };
 
+const cloudFunctionsRootToken = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1MDgyNTUyOTAsImNsaWVudElkIjoiY2oyd2lmdnZmM29raTAxNTRtZnN0c2lscCIsInByb2plY3RJZCI6ImNqOGRsenhnbjBveXIwMTQ0NTc0dTJpdmIiLCJwZXJtYW5lbnRBdXRoVG9rZW5JZCI6ImNqOHZzOWFuMjA1ZDgwMTI0dTE5eXJxamEifQ.X7W_f3RjpNr032pFpn0lG6eCAiUzC1kmizA-YBR6Uss';
+
 GraphSMInit({
     initialLocalState: {
         components: {}
@@ -82,7 +84,8 @@ GraphSMInit({
             };
         }
     },
-    reduxMiddlewares: [reduxLogger]
+    reduxMiddlewares: [reduxLogger],
+    remoteEndpoint: 'https://api.graph.cool/simple/v1/cj8dlzxgn0oyr0144574u2ivb'
 });
 
 (async () => {
@@ -106,8 +109,6 @@ GraphSMInit({
         return value.five;
     });
 
-    console.log('about to execute');
-
     const result = await execute(`
         mutation prepare(
             $componentId: String!
@@ -124,6 +125,9 @@ GraphSMInit({
                         code
                     }
                 }
+            }
+            allUsers {
+                id
             }
         }
 
@@ -168,11 +172,9 @@ GraphSMInit({
                 }
             };
         }
-    });
+    }, cloudFunctionsRootToken);
 
     console.log(result);
-
-    console.log('execution complete');
 
     // subscribe(async () => {
     //     const result = await execute(`
