@@ -109,7 +109,43 @@ export function addIsTypeOf(abstractName, concreteName, isTypeOf) {
 
 export function extendSchema(schemaExtension) {
     localSchemaString = localSchemaString + schemaExtension;
-    localSchema = buildSchema(localSchemaString);
+    let newSchema = buildSchema(localSchemaString);
+    copyIsTypeOfs(localSchema, newSchema);
+    localSchema = newSchema;
+}
+
+// for some reason trying to make an immutable copy with object spread results in graphql-js not recognizing the returned schema as a schema. That's why I am mutating directly
+function copyIsTypeOfs(oldSchema, newSchema) {
+    Object.keys(newSchema._implementations).forEach((newAbstractImplementationKey) => {
+        let newAbstractImplementationValue = newSchema._implementations[newAbstractImplementationKey];
+        newAbstractImplementationValue.forEach((newConcreteImplementation, index) => {
+            const oldAbstractImplementation = oldSchema._implementations[newAbstractImplementationKey];
+            const oldConcreteImplementation = oldAbstractImplementation ? oldAbstractImplementation[index] : null;
+            if (oldConcreteImplementation) {
+                newConcreteImplementation.isTypeOf = oldConcreteImplementation.isTypeOf;
+            }
+        });
+    });
+
+    // TODO this is how it would be done immutably, perhaps open an issue on graphql-js and figure out why this doesn't work. This is all private implementation details, so I shouldn't be doing this anyway
+    // perhaps ask for an official way to dynamically add isTypeOf functions to types
+    // return {
+    //     ...newSchema,
+    //     _implementations: Object.keys(newSchema._implementations).reduce((result, newAbstractImplementationKey) => {
+    //         const newAbstractImplementationValue = newSchema._implementations[newAbstractImplementationKey];
+    //         return {
+    //             ...result,
+    //             [newAbstractImplementationKey]: newAbstractImplementationValue.map((newConcreteImplementation, index) => {
+    //                 const oldAbstractImplementation = oldSchema._implementations[newAbstractImplementationKey];
+    //                 const oldConcreteImplementation = oldAbstractImplementation ? oldAbstractImplementation[index] : null;
+    //                 return {
+    //                     ...newConcreteImplementation,
+    //                     isTypeOf: oldConcreteImplementation ? oldConcreteImplementation.isTypeOf : newConcreteImplementation.isTypeOf
+    //                 };
+    //             })
+    //         };
+    //     }, {})
+    // };
 }
 
 function prepareLocalResolvers(rawLocalResolvers) {
