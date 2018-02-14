@@ -96,7 +96,9 @@ export async function execute(queryString, pipelineFunctions, userToken) {
 }
 
 export function subscribe(callback) {
-    return store.subscribe(callback);
+    return store.subscribe(() => {
+        callback(store.getState());
+    });
 }
 
 export function addIsTypeOf(abstractName, concreteName, isTypeOf) {
