@@ -34,7 +34,7 @@
   },
   "bundleDependencies": false,
   "dependencies": {
-    "js-tokens": "^3.0.0"
+    "js-tokens": "^4.0.0"
   },
   "deprecated": false,
   "description": "Fast (and loose) selective `process.env` replacer using js-tokens instead of an AST",
