@@ -34,7 +34,7 @@
   "deprecated": false,
   "description": "Minimal zero-dependency utilities for using JavaScript Iterables in all environments.",
   "devDependencies": {
-    "coveralls": "2.13.1",
+    "coveralls": "2.13.3",
     "documentation": "4.0.0-beta.19",
     "flow-bin": "0.49.1",
     "nyc": "11.0.3",
