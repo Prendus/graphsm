@@ -33,13 +33,13 @@
   "deprecated": false,
   "description": "Symbol.observable ponyfill",
   "devDependencies": {
-    "babel-cli": "^6.9.0",
-    "babel-preset-es2015": "^6.9.0",
-    "babel-preset-es3": "^1.0.0",
-    "chai": "^3.5.0",
-    "check-es3-syntax-cli": "^0.1.0",
-    "mocha": "^2.4.5",
-    "typescript": "^2.1.4"
+    "babel-cli": "6.26.0",
+    "babel-preset-es2015": "6.24.1",
+    "babel-preset-es3": "1.0.1",
+    "chai": "3.5.0",
+    "check-es3-syntax-cli": "0.1.3",
+    "mocha": "2.5.3",
+    "typescript": "2.8.1"
   },
   "engines": {
     "node": ">=0.10.0"
