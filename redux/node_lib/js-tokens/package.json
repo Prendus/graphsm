@@ -32,10 +32,10 @@
   "deprecated": false,
   "description": "A regex that tokenizes JavaScript.",
   "devDependencies": {
-    "coffee-script": "~1.12.6",
-    "esprima": "^4.0.0",
-    "everything.js": "^1.0.3",
-    "mocha": "^3.4.2"
+    "coffee-script": "1.12.7",
+    "esprima": "4.0.0",
+    "everything.js": "1.0.3",
+    "mocha": "3.5.3"
   },
   "files": [
     "index.js"
