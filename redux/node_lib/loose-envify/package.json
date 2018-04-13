@@ -41,7 +41,7 @@
   "devDependencies": {
     "browserify": "13.3.0",
     "envify": "3.4.1",
-    "tap": "8.0.1"
+    "tap": "11.1.4"
   },
   "homepage": "https://github.com/zertosh/loose-envify",
   "keywords": [
