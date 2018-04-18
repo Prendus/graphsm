@@ -37,7 +37,7 @@
     "coveralls": "2.13.1",
     "documentation": "4.0.0-beta.19",
     "flow-bin": "0.49.1",
-    "nyc": "11.0.3",
+    "nyc": "11.7.1",
     "prettier": "1.5.2"
   },
   "files": [
