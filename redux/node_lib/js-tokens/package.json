@@ -35,7 +35,7 @@
     "coffee-script": "1.12.7",
     "esprima": "4.0.0",
     "everything.js": "1.0.3",
-    "mocha": "3.5.3"
+    "mocha": "5.1.1"
   },
   "files": [
     "index.js"
