@@ -5,10 +5,16 @@
     "scripts": {
         "test": "xvfb-run -a electron --enable-logging node_modules/scram-engine/main.js --entry-file test/index.html --auto-run",
         "test-auto": "electron --enable-logging node_modules/scram-engine/main.js --entry-file test/index.html --auto-run",
-        "test-window": "electron --enable-logging node_modules/scram-engine/main.js --entry-file test/index.html --window"
+        "test-window": "electron --enable-logging node_modules/scram-engine/main.js --entry-file test/index.html --window",
+        "test-guesswork": "guesswork --entry test/index.js"
     },
     "devDependencies": {
-        "scram-engine": "^0.6.17"
+        "@webcomponents/custom-elements": "^1.1.0",
+        "@webcomponents/shadydom": "^1.0.14",
+        "guesswork": "^0.10.6"
     },
-    "dependencies": {}
+    "dependencies": {
+        "graphql": "^0.13.2",
+        "redux": "^4.0.0-beta.2"
+    }
 }

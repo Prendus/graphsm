@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "noImplicitAny": true,
+        "strictNullChecks": true,
+        "target": "ES2015",
+        "lib": ["dom"],
+        "allowJs": true,
+        "checkJs": true
+    },
+    "exclude": [
+        "node_modules",
+        "src/node_modules",
+        "src/bower_components"
+    ]
+}

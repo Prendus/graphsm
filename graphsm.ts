@@ -5,10 +5,9 @@ import {
     GraphQLScalarType,
     GraphQLObjectType,
     print
-} from './graphql/module/index';
+} from 'graphql';
 
-import createStore from './redux/es/createStore';
-import applyMiddleware from './redux/es/applyMiddleware';
+import {createStore, applyMiddleware} from 'redux';
 
 let initialLocalState = {
     GRAPH_SM_STATE: true

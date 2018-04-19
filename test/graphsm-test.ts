@@ -6,8 +6,6 @@ import {
     addIsTypeOf
 } from '../graphsm';
 
-import {GraphQLObjectType} from '../graphql/module/index';
-
 const reduxLogger = (store) => (next) => (action) => {
     console.log('dispatching', action);
     const result = next(action);
