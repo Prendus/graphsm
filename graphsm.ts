@@ -227,7 +227,7 @@ function removeUnusedVariableDefinitions(ast) {
         definitions: ast.definitions.map((definition) => {
             const variableNamesInSelections = definition.selectionSet.selections.reduce((result, selection) => {
                 const variableNamesInSelection = selection.arguments.reduce((result, argument) => {
-                    return [...result, argument.name.value];
+                    return [...result, argument.value.name.value];
                 }, []);
                 return [...result, ...variableNamesInSelection];
             }, []);
