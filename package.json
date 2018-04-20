@@ -1,7 +1,8 @@
 {
     "name": "graphsm",
-    "version": "0.3.2",
+    "version": "0.3.4",
     "description": "All-in-one state management solution using GraphQL",
+    "main": "./graphsm.ts",
     "scripts": {
         "test": "xvfb-run -a electron --enable-logging node_modules/scram-engine/main.js --entry-file test/index.html --auto-run",
         "test-auto": "electron --enable-logging node_modules/scram-engine/main.js --entry-file test/index.html --auto-run",
