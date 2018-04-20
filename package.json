@@ -1,6 +1,6 @@
 {
     "name": "graphsm",
-    "version": "0.3.4",
+    "version": "0.3.5",
     "description": "All-in-one state management solution using GraphQL",
     "main": "./graphsm.ts",
     "scripts": {
