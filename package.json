@@ -8,9 +8,9 @@
         "test-manual": "guesswork --entry test/index.js"
     },
     "devDependencies": {
-        "@webcomponents/custom-elements": "^1.1.0",
-        "@webcomponents/shadydom": "^1.0.14",
-        "guesswork": "^0.11.2"
+        "@webcomponents/custom-elements": "1.1.0",
+        "@webcomponents/shadydom": "1.0.14",
+        "guesswork": "0.11.2"
     },
     "dependencies": {
         "graphql": "^0.13.2",
