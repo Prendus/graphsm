@@ -8,7 +8,7 @@
         "test-manual": "guesswork --entry test/index.js"
     },
     "devDependencies": {
-        "@webcomponents/custom-elements": "^1.1.0",
+        "@webcomponents/custom-elements": "1.5.0",
         "@webcomponents/shadydom": "^1.0.14",
         "guesswork": "^0.11.2"
     },
